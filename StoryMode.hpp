@@ -31,6 +31,7 @@ struct StoryMode : Mode {
   std::vector<AnimatedSprite*> animation;
   bool animation_playing = false;
   void draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw);
+  Sprite const* end_of_animation_sprite = nullptr;
 
 	//called to create menu for current scene:
 	void enter_scene();

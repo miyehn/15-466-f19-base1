@@ -151,6 +151,9 @@ void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &dra
         } else {
           // end entire animation
           animation_playing = false;
+          // decide whether to retain the last sprite and keep drawing it 
+          end_of_animation_sprite = as->timeline.get_value() > 0.5 ? 
+            animation[animation.size()-1]->sprite : nullptr;
           for (auto as : animation) delete as;
         }
       }
@@ -176,9 +179,12 @@ void StoryMode::draw(glm::uvec2 const &drawable_size) {
 
     // draw the scene (bg only) according to game state
     if (state_flag) {
-      draw.draw(*sprite_dunes_bg, ul, 1.0, glm::u8vec4(100, 100, 100, 255));
+      draw.draw(*sprite_dunes_bg, ul);
     } 
     if (animation_playing) draw_animation(drawable_size, draw);
+    else if (end_of_animation_sprite) {
+      draw.draw(*end_of_animation_sprite, ul);
+    }
     
   }
   GL_ERRORS(); //did the DrawSprites do something wrong?

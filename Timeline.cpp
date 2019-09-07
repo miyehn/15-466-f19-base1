@@ -36,15 +36,14 @@ float Timeline::get_value() {
   
   // return linear interpolated value bt. timepoints
   for(int i=0; i<timepoints.size() - 1; i++) {
-    if (current >= timepoints[i]) {
+    if (current >= timepoints[i] && current < timepoints[i+1]) {
       float v1 = values[i];
       float v2 = values[i+1];
       float segment_length = glm::max(epsilon, timepoints[i+1] - timepoints[i]);
-      float time_offset = current - timepoints[i];
+      // cap time offset to be at most at segment endpoint
+      float time_offset = glm::min(current - timepoints[i], segment_length);
       float value_offset = (v2-v1) * (time_offset / segment_length);
-      // cap value change to up to v2
-      return value_offset > 0.0f ? 
-        glm::min(v1+value_offset, v2) : glm::max(v1+value_offset, v2);
+      return v1 + value_offset;
     }
   }
   return values[values.size()-1];
