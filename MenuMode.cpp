@@ -95,7 +95,8 @@ void MenuMode::draw(glm::uvec2 const &drawable_size) {
 				draw_sprites.draw_text(
 					item.name, item.at, item.scale, color
 				);
-				glm::vec2 min,max;
+				glm::vec2 min = item.at;
+        glm::vec2 max = item.at;
 				draw_sprites.get_text_extents(
 					item.name, item.at, item.scale, &min, &max
 				);

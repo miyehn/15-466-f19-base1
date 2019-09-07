@@ -83,6 +83,7 @@ GAME_NAMES =
 	Mode
 	GL
 	Load
+  Timeline
 	;
 
 PACK_SPRITES_NAMES =

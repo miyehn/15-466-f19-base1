@@ -5,6 +5,18 @@
  */
 
 #include "Mode.hpp"
+#include "Sprite.hpp"
+#include "DrawSprites.hpp"
+#include <iostream>
+
+struct AnimatedSprite {
+  AnimatedSprite(Sprite const* sprite_, glm::vec2 position_, Timeline timeline_) : 
+    sprite(sprite_), position(position_), timeline(timeline_) {};
+  ~AnimatedSprite() {std::cout << "animated struct destructed" << std::endl;}
+  Sprite const *sprite;
+  glm::vec2 position;
+  Timeline timeline;
+};
 
 struct StoryMode : Mode {
 	StoryMode();
@@ -13,6 +25,11 @@ struct StoryMode : Mode {
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
+
+  std::vector<AnimatedSprite*> animation;
+  bool animation_playing = false;
+  void draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw);
+  float time_elapsed;
 
 	//called to create menu for current scene:
 	void enter_scene();

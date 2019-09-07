@@ -8,6 +8,7 @@
  */
 
 #include "GL.hpp"
+#include "Timeline.hpp"
 
 #include <glm/glm.hpp>
 
@@ -27,6 +28,7 @@ struct Sprite {
 
 	//Generally, you set it to something meaningful like the center of mass
 	// or the position of the feet.
+  
 };
 
 struct SpriteAtlas {

@@ -1,11 +1,10 @@
 #include "StoryMode.hpp"
 
-#include "Sprite.hpp"
-#include "DrawSprites.hpp"
 #include "Load.hpp"
 #include "data_path.hpp"
 #include "gl_errors.hpp"
 #include "MenuMode.hpp"
+#include "Timeline.hpp"
 
 Sprite const *sprite_left_select = nullptr;
 Sprite const *sprite_right_select = nullptr;
@@ -41,13 +40,15 @@ bool StoryMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
 }
 
 void StoryMode::update(float elapsed) {
-  if (Mode::current.get() == this) {
+  time_elapsed = elapsed;
+  if (Mode::current.get() == this && !animation_playing) {
     //there is no menu displayed! Make one:
     enter_scene();
   }
 }
 
 void StoryMode::enter_scene() {
+  std::cout << "enter scene!" << std::endl;
   //just entered this scene, adjust flags and build menu as appropriate:
   std::vector< MenuMode::Item > items;
   glm::vec2 at(3.0f, view_max.y - 50.0f);
@@ -91,6 +92,21 @@ void StoryMode::enter_scene() {
     at.y -= 4.0f; //gap before choices
     add_choice(nullptr, "flip flag.", [this](MenuMode::Item const &){
       state_flag = true;
+      // construct animation to start playing
+      animation = std::vector<AnimatedSprite*>();
+      animation_playing = true;
+
+      Timeline time1 = Timeline(data_path("example.timeline"));
+      time1.set_interval(0.0f, 2.0f);
+      time1.playing = true; // set this first animation in sequence to playing state
+      animation.push_back(
+          new AnimatedSprite(sprite_dunes_ship, glm::vec2(view_min.x, view_max.y), time1));
+
+      Timeline time2 = Timeline(data_path("example.timeline"));
+      time2.set_interval(0.0f, 2.0f);
+      animation.push_back(
+          new AnimatedSprite(sprite_dunes_traveller, glm::vec2(view_min.x, view_max.y), time2));
+
       Mode::current = shared_from_this();
     });
     add_choice(nullptr, "do nothing.", [this](MenuMode::Item const &){
@@ -108,9 +124,35 @@ void StoryMode::enter_scene() {
   Mode::current = menu;
 }
 
+// helper to StoryMode::draw
+// maybe also pass in a "playing" bool that can be flipped when entire animation ended
+void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw) {
+  for (int i=0; i<animation.size(); i++) {
+    AnimatedSprite* as = animation[i];
+    if (as->timeline.playing) { // if it's playing before drawing.
+      draw.draw(
+          *(as->sprite), 
+          as->position
+      ); // TODO: replace with get_value()
+      as->timeline.update(time_elapsed);
+      if (!as->timeline.playing) {
+        if (i != animation.size()-1) {
+          // start next one
+          animation[i+1]->timeline.playing = true;
+        } else {
+          // end entire animation
+          animation_playing = false;
+          for (auto as : animation) delete as;
+        }
+      }
+    }
+  }
+
+}
+
 void StoryMode::draw(glm::uvec2 const &drawable_size) {
   //clear the color buffer:
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   //use alpha blending:
@@ -125,11 +167,11 @@ void StoryMode::draw(glm::uvec2 const &drawable_size) {
 
     // draw the scene (bg only) according to game state
     if (state_flag) {
-      draw.draw(*sprite_dunes_bg, ul);
-      draw.draw(*sprite_dunes_ship, ul);
-      draw.draw(*sprite_dunes_traveller, ul);
+      draw.draw(*sprite_dunes_bg, ul, 1.0, glm::u8vec4(100, 100, 100, 255));
     } 
+    if (animation_playing) draw_animation(drawable_size, draw);
     
   }
   GL_ERRORS(); //did the DrawSprites do something wrong?
 }
+
