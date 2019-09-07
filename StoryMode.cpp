@@ -34,21 +34,21 @@ StoryMode::~StoryMode() {
 }
 
 bool StoryMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
-  if (Mode::current.get() != this) return false;
-
+  // if (Mode::current.get() != this) return false;
   return false;
 }
 
 void StoryMode::update(float elapsed) {
   time_elapsed = elapsed;
   if (Mode::current.get() == this && !animation_playing) {
-    //there is no menu displayed! Make one:
+    // there is no menu displayed! Make one
+    // menu becomes current mode, until some choice is made
+    // then either story becomes current again (and some animation starts, maybe), or quit.
     enter_scene();
   }
 }
 
 void StoryMode::enter_scene() {
-  std::cout << "enter scene!" << std::endl;
   //just entered this scene, adjust flags and build menu as appropriate:
   std::vector< MenuMode::Item > items;
   glm::vec2 at(3.0f, view_max.y - 50.0f);
@@ -127,13 +127,22 @@ void StoryMode::enter_scene() {
 // helper to StoryMode::draw
 // maybe also pass in a "playing" bool that can be flipped when entire animation ended
 void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw) {
+
+  // a little helper function that maps things
+  auto alpha255 = [](float alpha) {
+    float res = alpha * 255.0f;
+    return (uint8_t)res;
+  };
+
   for (int i=0; i<animation.size(); i++) {
     AnimatedSprite* as = animation[i];
     if (as->timeline.playing) { // if it's playing before drawing.
       draw.draw(
           *(as->sprite), 
-          as->position
-      ); // TODO: replace with get_value()
+          as->position,
+          1.0f,
+          glm::u8vec4(255, 255, 255, alpha255(as->timeline.get_value()))
+      ); 
       as->timeline.update(time_elapsed);
       if (!as->timeline.playing) {
         if (i != animation.size()-1) {

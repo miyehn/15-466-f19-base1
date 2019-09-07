@@ -10,14 +10,12 @@ Timeline::Timeline(std::string filepath){
     timepoints.push_back(timepoint);
     values.push_back(value);
   }
-  std::cout << "a timeline created" << std::endl;
 }
 
 void Timeline::update(float elapsed) {
   if (!playing) return;
 
   current += elapsed;
-  std::cout << "animation update.. current: " << current << std::endl;
   if (current >= til) {
     current = til;
     playing = false;
@@ -25,7 +23,6 @@ void Timeline::update(float elapsed) {
 }
 
 Timeline::~Timeline() {
-  std::cout << "timeline destructed." << std::endl;
 }
 
 void Timeline::set_interval(float from, float til) {

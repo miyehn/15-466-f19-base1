@@ -12,7 +12,6 @@
 struct AnimatedSprite {
   AnimatedSprite(Sprite const* sprite_, glm::vec2 position_, Timeline timeline_) : 
     sprite(sprite_), position(position_), timeline(timeline_) {};
-  ~AnimatedSprite() {std::cout << "animated struct destructed" << std::endl;}
   Sprite const *sprite;
   glm::vec2 position;
   Timeline timeline;
@@ -26,10 +25,12 @@ struct StoryMode : Mode {
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
+  float time_elapsed;
+
+  // properties related to animation
   std::vector<AnimatedSprite*> animation;
   bool animation_playing = false;
   void draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw);
-  float time_elapsed;
 
 	//called to create menu for current scene:
 	void enter_scene();
