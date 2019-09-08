@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-  glm::uvec2 window_size = glm::uvec2(640, 480);
+  glm::uvec2 window_size = glm::uvec2(720, 540);
 
   //create window:
   SDL_Window *window = SDL_CreateWindow(
