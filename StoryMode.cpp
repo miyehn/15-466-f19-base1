@@ -11,6 +11,9 @@ Sprite const *sprite_right_select = nullptr;
 Sprite const *sprite_dunes_bg = nullptr;
 Sprite const *sprite_dunes_traveller = nullptr;
 Sprite const *sprite_dunes_ship = nullptr;
+Sprite const *sprite_dialog1 = nullptr;
+Sprite const *sprite_dialog2 = nullptr;
+Sprite const *sprite_dialog3 = nullptr;
 
 std::string state_false = "state flag was not flipped yet.";
 std::string state_true = "state flag has been selected!";
@@ -22,12 +25,16 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
     std::cout << elem.first;
     std::cout << std::endl;
   }
+  std::cout << "--------" << std::endl;
 
 	sprite_left_select = &ret->lookup("selected");
 	sprite_right_select = &ret->lookup("selected");
   sprite_dunes_bg = &ret->lookup("lightBg");
   sprite_dunes_traveller = &ret->lookup("imgRecovered");
   sprite_dunes_ship = &ret->lookup("imgRecording");
+  sprite_dialog1 = &ret->lookup("dialog1");
+  sprite_dialog2 = &ret->lookup("dialog2");
+  sprite_dialog3 = &ret->lookup("dialog3");
 
   return ret;
 });
@@ -39,7 +46,6 @@ StoryMode::~StoryMode() {
 }
 
 bool StoryMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
-  // if (Mode::current.get() != this) return false;
   return false;
 }
 
@@ -56,19 +62,14 @@ void StoryMode::update(float elapsed) {
 void StoryMode::enter_scene() {
   //just entered this scene, adjust flags and build menu as appropriate:
   std::vector< MenuMode::Item > items;
-  glm::vec2 at(3.0f, view_max.y - 50.0f);
+  glm::vec2 at(50.0f, 86.0f);
 
   auto add_text = [&items,&at](
       Sprite const *text, 
       std::string str // gets drawn as alternative string if no sprite
   ) {
     items.emplace_back(str, text, 1.0f, nullptr, at);
-    if (text) {
-      at.y -= text->max_px.y - text->min_px.y;
-      at.y -= 4.0f;
-    } else {
-      at.y -= 24.0f;
-    }
+    at.y -= 30.0f;
   };
 
   auto add_choice = [&items,&at](
@@ -76,25 +77,18 @@ void StoryMode::enter_scene() {
       std::string str, // gets drawn as alternative string if no sprite
       std::function< void(MenuMode::Item const &) > const &fn
   ) {
-    items.emplace_back(str, text, 1.0f, fn, at + glm::vec2(8.0f, 0.0f));
-    if (text) {
-      at.y -= text->max_px.y - text->min_px.y;
-      at.y -= 4.0f;
-    } else {
-      at.y -= 24.0;
-    }
+    items.emplace_back(str, text, 1.0f, fn, at + glm::vec2(28.0f, 0.0f));
+    at.y -= 30.0f;
   };
 
   // create the menu item depending on the current game state
   if (state_flag) {
     add_text(nullptr, state_true);
-    at.y -= 4.0f; //gap before choices
     add_choice(nullptr, "ok.", [](MenuMode::Item const &){
       Mode::current = nullptr;    
     });
   } else {
     add_text(nullptr, state_false);
-    at.y -= 4.0f; //gap before choices
     add_choice(nullptr, "flip flag.", [this](MenuMode::Item const &){
       state_flag = true;
       // construct animation to start playing
@@ -122,7 +116,9 @@ void StoryMode::enter_scene() {
   std::shared_ptr< MenuMode > menu = std::make_shared< MenuMode >(items);
   menu->atlas = sprites;
   menu->left_select = sprite_left_select;
-  menu->right_select = sprite_right_select;
+  menu->dialog1 = sprite_dialog1;
+  menu->dialog2 = sprite_dialog2;
+  menu->dialog3 = sprite_dialog3;
   menu->view_min = view_min;
   menu->view_max = view_max;
   menu->background = shared_from_this();

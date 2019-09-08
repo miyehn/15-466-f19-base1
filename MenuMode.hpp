@@ -41,7 +41,11 @@ struct MenuMode : Mode {
 
 	//if set, used to highlight the current selection:
 	Sprite const *left_select = nullptr;
-	Sprite const *right_select = nullptr;
+
+  // background sprites
+	Sprite const *dialog1 = nullptr;
+	Sprite const *dialog2 = nullptr;
+	Sprite const *dialog3 = nullptr;
 
 	//must be set to the atlas from which all the sprites used herein are taken:
 	SpriteAtlas const *atlas = nullptr;
