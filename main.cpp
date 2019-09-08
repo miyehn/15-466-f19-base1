@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
     window_size.x, window_size.y, 
     SDL_WINDOW_OPENGL
-    | SDL_WINDOW_ALLOW_HIGHDPI //uncomment for full resolution on high-DPI screens
+    // | SDL_WINDOW_ALLOW_HIGHDPI //uncomment for full resolution on high-DPI screens
   );
 
   //prevent exceedingly tiny windows when resizing:

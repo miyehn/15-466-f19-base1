@@ -144,9 +144,11 @@ void DrawSprites::draw(Sprite const &sprite, glm::vec2 const &center, float scal
 void DrawSprites::draw_text(std::string const &name, glm::vec2 const &anchor, float scale, glm::u8vec4 const &color) {
   glm::vec2 moving_anchor = anchor;
   for (size_t pos = 0; pos < name.size(); pos++){
-    Sprite const &chr = atlas.lookup(name.substr(pos,1));
+    Sprite const &chr = atlas.lookup(std::to_string(int(name[pos])));
     draw(chr, moving_anchor, scale, color);
-    moving_anchor.x += (chr.max_px.x - chr.min_px.x) * scale;
+    // TODO: since it's a mono font I'm hardcoding the advance here
+    // moving_anchor.x += (chr.max_px.x - chr.min_px.x) * scale; 
+    moving_anchor.x += 14.0f * scale;
   }
 }
 
@@ -158,8 +160,8 @@ void DrawSprites::get_text_extents(
     glm::vec2 *max
 ) {
   for (size_t pos = 0; pos < name.size(); pos++){
-    Sprite const &chr = atlas.lookup(name.substr(pos,1));
-    float w = (chr.max_px.x - chr.min_px.x) * scale;
+    Sprite const &chr = atlas.lookup(std::to_string(int(name[pos])));
+    float w = 14.0 * scale;
     float h = (chr.max_px.y - chr.min_px.y) * scale;
     max->x += w;
     max->y += h;

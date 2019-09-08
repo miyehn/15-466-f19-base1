@@ -40,5 +40,5 @@ struct StoryMode : Mode {
   bool state_flag = false;
 	
 	glm::vec2 view_min = glm::vec2(0,0);
-	glm::vec2 view_max = glm::vec2(256, 224);
+	glm::vec2 view_max = glm::vec2(720, 540);
 };

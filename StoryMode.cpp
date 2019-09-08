@@ -16,13 +16,18 @@ std::string state_false = "state flag was not flipped yet.";
 std::string state_true = "state flag has been selected!";
 
 Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
-  SpriteAtlas const *ret = new SpriteAtlas(data_path("the-planet"));
+  SpriteAtlas const *ret = new SpriteAtlas(data_path("placeholders"));
 
-	sprite_left_select = &ret->lookup("text-select-left");
-	sprite_right_select = &ret->lookup("text-select-right");
-  sprite_dunes_bg = &ret->lookup("dunes-bg");
-  sprite_dunes_traveller = &ret->lookup("dunes-traveller");
-  sprite_dunes_ship = &ret->lookup("dunes-ship");
+  for (std::pair<std::string, Sprite> elem : ret->sprites) {
+    std::cout << elem.first;
+    std::cout << std::endl;
+  }
+
+	sprite_left_select = &ret->lookup("selected");
+	sprite_right_select = &ret->lookup("selected");
+  sprite_dunes_bg = &ret->lookup("lightBg");
+  sprite_dunes_traveller = &ret->lookup("imgRecovered");
+  sprite_dunes_ship = &ret->lookup("imgRecording");
 
   return ret;
 });
@@ -164,7 +169,7 @@ void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &dra
 
 void StoryMode::draw(glm::uvec2 const &drawable_size) {
   //clear the color buffer:
-  glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   //use alpha blending:
