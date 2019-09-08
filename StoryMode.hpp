@@ -34,9 +34,24 @@ struct StoryMode : Mode {
   Sprite const* end_of_animation_sprite = nullptr;
 
 	//called to create menu for current scene:
-	void enter_scene();
+	void display_menu();
 
 	//------ story state -------
+  
+  enum StoryState {
+    uhh_anyone,
+    open_camera,
+    i_cant,
+    easier_communication,
+    cant_reach_camera,
+    back_working_look_great,
+    back_working_fix_camera,
+    camera_fixed,
+    farewell
+  };
+
+  bool can_open_camera;
+
   bool state_flag = false;
 	
 	glm::vec2 view_min = glm::vec2(0,0);

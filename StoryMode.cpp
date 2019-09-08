@@ -55,11 +55,11 @@ void StoryMode::update(float elapsed) {
     // there is no menu displayed! Make one
     // menu becomes current mode, until some choice is made
     // then either story becomes current again (and some animation starts, maybe), or quit.
-    enter_scene();
+    display_menu();
   }
 }
 
-void StoryMode::enter_scene() {
+void StoryMode::display_menu() {
   //just entered this scene, adjust flags and build menu as appropriate:
   std::vector< MenuMode::Item > items;
   glm::vec2 at(50.0f, 86.0f);
