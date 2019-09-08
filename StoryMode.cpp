@@ -90,13 +90,11 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
 StoryMode::StoryMode() {
   
   add_anim_sequence(
-      sprite_uhh,
-      glm::vec2(view_min.x, view_max.y),
+      sprite_uhh, glm::vec2(100.0f, 230.0f),
       "example.timeline", 0.5f, 1.0f);
   add_anim_sequence(
-      sprite_anyone_there,
-      glm::vec2(view_min.x, view_max.y),
-      "example.timeline", 0.5f, 1.0f);
+      sprite_anyone_there, glm::vec2(100.0f, 230.0f),
+      "example.timeline", 0.5f, 1.0f, true);
   
 }
 
@@ -128,8 +126,9 @@ bool StoryMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size
   return false;
 }
 
+// NOTE: pos here means: ul corner is (0,0), br corner is (720, 540).
 void StoryMode::add_anim_sequence(
-    Sprite const* sprite, glm::vec2 position, std::string const& timeline_path, float start, float end) {
+    Sprite const* sprite, glm::vec2 pos, std::string const& timeline_path, float start, float end, bool retain) {
   bool first = false;
   if (!animation_playing) { // adding the first sequence
     animation = std::vector<AnimatedSprite*>();
@@ -138,8 +137,16 @@ void StoryMode::add_anim_sequence(
   }
   Timeline timeline = Timeline(data_path(timeline_path));
   timeline.set_interval(start, end);
+  glm::vec2 draw_position(view_min.x+pos.x, view_max.y-pos.y);
   if (first) timeline.playing = true;
-  animation.push_back(new AnimatedSprite(sprite, position, timeline));
+  animation.push_back(
+      new AnimatedSprite(sprite, draw_position, timeline));
+  if (retain) {
+    end_of_animation_sprite = sprite;
+    end_of_animation_sprite_pos = draw_position;
+  } else {
+    end_of_animation_sprite = nullptr;
+  }
 }
 
 void StoryMode::update(float elapsed) {
@@ -346,9 +353,11 @@ void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &dra
         } else {
           // end entire animation
           animation_playing = false;
+          /*
           // decide whether to retain the last sprite and keep drawing it 
           end_of_animation_sprite = as->timeline.get_value() > 0.5 ? 
             animation[animation.size()-1]->sprite : nullptr;
+            */
           for (auto as : animation) delete as;
         }
       }
@@ -385,7 +394,7 @@ void StoryMode::draw(glm::uvec2 const &drawable_size) {
 
     if (animation_playing) draw_animation(drawable_size, draw);
     else if (end_of_animation_sprite) {
-      draw.draw(*end_of_animation_sprite, ul);
+      draw.draw(*end_of_animation_sprite, end_of_animation_sprite_pos);
     }
     
   }

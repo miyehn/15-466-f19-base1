@@ -24,12 +24,7 @@ MenuMode::~MenuMode() {
 
 bool MenuMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
   if (evt.type == SDL_KEYDOWN) {
-    /*
-    if (wait_for_camera && evt.key.keysym.sym == SDLK_c) {
-      wait_for_camera = false;
-      Mode::current = background;
-      return true;
-    } else */if (evt.key.keysym.sym == SDLK_UP) {
+    if (evt.key.keysym.sym == SDLK_UP) {
       //skip non-selectable items:
       for (uint32_t i = selected - 1; i < items.size(); --i) {
         if (items[i].on_select) {
