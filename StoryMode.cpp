@@ -6,14 +6,35 @@
 #include "MenuMode.hpp"
 #include "Timeline.hpp"
 
-Sprite const *sprite_left_select = nullptr;
-Sprite const *sprite_right_select = nullptr;
 Sprite const *sprite_dunes_bg = nullptr;
 Sprite const *sprite_dunes_traveller = nullptr;
 Sprite const *sprite_dunes_ship = nullptr;
+
+// for menu dialog
+Sprite const *sprite_left_select = nullptr;
 Sprite const *sprite_dialog1 = nullptr;
 Sprite const *sprite_dialog2 = nullptr;
 Sprite const *sprite_dialog3 = nullptr;
+
+Sprite const *sprite_uhh = nullptr;
+Sprite const *sprite_anyone_there = nullptr;
+Sprite const *sprite_can_you_help_me = nullptr;
+Sprite const *sprite_open_camera = nullptr;
+Sprite const *sprite_signal_DNE = nullptr;
+Sprite const *sprite_signal_DNE_glitch = nullptr;
+Sprite const *sprite_show_autorecovered_image = nullptr;
+Sprite const *sprite_i_cant = nullptr;
+Sprite const *sprite_easier_communicate = nullptr;
+Sprite const *sprite_not_fully_functional = nullptr;
+Sprite const *sprite_back_up_working = nullptr;
+Sprite const *sprite_look_great = nullptr;
+Sprite const *sprite_will_fix_camera = nullptr;
+Sprite const *sprite_cant_reach_camera = nullptr;
+Sprite const *sprite_see_me_now = nullptr;
+Sprite const *sprite_thanks_for_help = nullptr;
+Sprite const *sprite_move_on_mission = nullptr;
+Sprite const *sprite_farewell = nullptr;
+
 
 std::string state_false = "state flag was not flipped yet.";
 std::string state_true = "state flag has been selected!";
@@ -27,26 +48,91 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
   }
   std::cout << "--------" << std::endl;
 
-	sprite_left_select = &ret->lookup("selected");
-	sprite_right_select = &ret->lookup("selected");
   sprite_dunes_bg = &ret->lookup("lightBg");
   sprite_dunes_traveller = &ret->lookup("imgRecovered");
   sprite_dunes_ship = &ret->lookup("imgRecording");
+
+	sprite_left_select = &ret->lookup("selected");
   sprite_dialog1 = &ret->lookup("dialog1");
   sprite_dialog2 = &ret->lookup("dialog2");
   sprite_dialog3 = &ret->lookup("dialog3");
+
+  sprite_uhh = &ret->lookup("ehh");
+  sprite_anyone_there = &ret->lookup("anyoneCtrlRm");
+  sprite_can_you_help_me = &ret->lookup("ehh");
+  sprite_open_camera = &ret->lookup("anyoneCtrlRm");
+  sprite_signal_DNE = &ret->lookup("noCamSignal");
+  sprite_signal_DNE_glitch = &ret->lookup("noCamSignalGlitch");
+  sprite_show_autorecovered_image = &ret->lookup("ehh");
+  sprite_i_cant = &ret->lookup("placeholder");
+  sprite_easier_communicate = &ret->lookup("placeholder");
+  sprite_not_fully_functional = &ret->lookup("placeholder");
+  sprite_back_up_working = &ret->lookup("placeholder");
+  sprite_look_great = &ret->lookup("placeholder");
+  sprite_will_fix_camera = &ret->lookup("placeholder");
+  sprite_cant_reach_camera = &ret->lookup("placeholder");
+  sprite_see_me_now = &ret->lookup("placeholder");
+  sprite_thanks_for_help = &ret->lookup("placeholder");
+  sprite_move_on_mission = &ret->lookup("placeholder");
+  sprite_farewell = &ret->lookup("placeholder");
 
   return ret;
 });
 
 StoryMode::StoryMode() {
+  
+  add_anim_sequence(
+      sprite_uhh,
+      glm::vec2(view_min.x, view_max.y),
+      "example.timeline", 0.5f, 1.0f);
+  add_anim_sequence(
+      sprite_anyone_there,
+      glm::vec2(view_min.x, view_max.y),
+      "example.timeline", 0.5f, 1.0f);
+  
 }
 
 StoryMode::~StoryMode() {
 }
 
-bool StoryMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
+bool StoryMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+  if (waiting_for_camera && !animation_playing) {
+    if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_c) {
+      add_anim_sequence(
+          sprite_signal_DNE,
+          glm::vec2(view_min.x, view_max.y),
+          "example.timeline", 0.5f, 0.9f);
+      add_anim_sequence(
+          sprite_signal_DNE_glitch,
+          glm::vec2(view_min.x, view_max.y),
+          "example.timeline", 0.9f, 1.1f);
+      add_anim_sequence(
+          sprite_signal_DNE,
+          glm::vec2(view_min.x, view_max.y),
+          "example.timeline", 1.1f, 2.0f);
+      add_anim_sequence(
+          sprite_show_autorecovered_image,
+          glm::vec2(view_min.x, view_max.y),
+          "example.timeline", 0.1f, 1.0f);
+      waiting_for_camera = false;
+      story_state = open_camera;
+    }
+  }
   return false;
+}
+
+void StoryMode::add_anim_sequence(
+    Sprite const* sprite, glm::vec2 position, std::string const& timeline_path, float start, float end) {
+  bool first = false;
+  if (!animation_playing) { // adding the first sequence
+    animation = std::vector<AnimatedSprite*>();
+    animation_playing = true;
+    first = true;
+  }
+  Timeline timeline = Timeline(data_path(timeline_path));
+  timeline.set_interval(start, end);
+  if (first) timeline.playing = true;
+  animation.push_back(new AnimatedSprite(sprite, position, timeline));
 }
 
 void StoryMode::update(float elapsed) {
@@ -81,39 +167,184 @@ void StoryMode::display_menu() {
     at.y -= 30.0f;
   };
 
-  // create the menu item depending on the current game state
-  if (state_flag) {
-    add_text(nullptr, state_true);
-    add_choice(nullptr, "ok.", [](MenuMode::Item const &){
-      Mode::current = nullptr;    
-    });
-  } else {
-    add_text(nullptr, state_false);
-    add_choice(nullptr, "flip flag.", [this](MenuMode::Item const &){
-      state_flag = true;
-      // construct animation to start playing
-      animation = std::vector<AnimatedSprite*>();
-      animation_playing = true;
+  
+  // what to do after _RESPONDING_ to each of the following states...
+  switch(story_state) {
 
-      Timeline time1 = Timeline(data_path("example.timeline"));
-      time1.set_interval(0.0f, 2.0f);
-      time1.playing = true; // set this first animation in sequence to playing state
-      animation.push_back(
-          new AnimatedSprite(sprite_dunes_ship, glm::vec2(view_min.x, view_max.y), time1));
+    case uhh_anyone: // respond to ask if anyone's in control room
+      add_choice(nullptr, "Yes! Hello!", [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_can_you_help_me,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_open_camera,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        waiting_for_camera = true;
+        story_state = ask_to_open_camera;
+        Mode::current = shared_from_this();
+      });
+      break;
 
-      Timeline time2 = Timeline(data_path("example.timeline"));
-      time2.set_interval(0.0f, 2.0f);
-      animation.push_back(
-          new AnimatedSprite(sprite_dunes_traveller, glm::vec2(view_min.x, view_max.y), time2));
+    case ask_to_open_camera:
+      // add_text(nullptr, "Send message:");
+      add_choice(nullptr, "Turn right to reach your right arm.", 
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_easier_communicate,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_not_fully_functional,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = easier_communication;
+        Mode::current = shared_from_this();
+      });
+      /*
+      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_i_cant,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = i_cant;
+        Mode::current = shared_from_this();
+      });
+      add_choice(nullptr, "Please first fix the camera.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_i_cant,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        alr_asked_abt_camera = true;
+        // no story state change here. Will change when event handled.
+        Mode::current = shared_from_this();
+      });
+      */
+      break;
 
-      Mode::current = shared_from_this();
-    });
-    add_choice(nullptr, "do nothing.", [this](MenuMode::Item const &){
-      Mode::current = shared_from_this();
-    });
+    case open_camera:
+    case i_cant:
+      add_text(nullptr, "Send message:");
+      add_choice(nullptr, "Turn right to reach your right arm.", 
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_easier_communicate,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_not_fully_functional,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = easier_communication;
+        Mode::current = shared_from_this();
+      });
+      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_i_cant,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = i_cant;
+        Mode::current = shared_from_this();
+      });
+      add_choice(nullptr, "Please first fix the camera.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_i_cant,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        alr_asked_abt_camera = true;
+        story_state = i_cant;
+        Mode::current = shared_from_this();
+      });
+      break;
+
+    case easier_communication:
+      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            alr_asked_abt_camera ? sprite_will_fix_camera : sprite_look_great, 
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = alr_asked_abt_camera ? back_working_fix_camera : back_working_look_great;
+        Mode::current = shared_from_this();
+      });
+      add_choice(nullptr, "Please fix the camera.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_cant_reach_camera,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        alr_asked_abt_camera = true;
+        story_state = cant_reach_camera;
+        Mode::current = shared_from_this();
+      });
+      break;
+
+    case cant_reach_camera:
+      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+          [this](MenuMode::Item const &) {
+        assert(alr_asked_abt_camera);
+        add_anim_sequence(
+            sprite_will_fix_camera, 
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_see_me_now,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = back_working_fix_camera;
+        Mode::current = shared_from_this();
+      });
+      break;
+
+    case back_working_look_great:
+      add_choice(nullptr, "Still can't see you. Please fix the camera.",
+          [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_will_fix_camera,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_see_me_now,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        alr_asked_abt_camera = true;
+        story_state = back_working_fix_camera;
+        Mode::current = shared_from_this();
+      });
+      break;
+
+    case back_working_fix_camera: // when reach here, camera's fixed. Play farewell anim
+      camera_working = true;
+      add_choice(nullptr, "Yep.", [this](MenuMode::Item const &) {
+        add_anim_sequence(
+            sprite_thanks_for_help,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_move_on_mission,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        add_anim_sequence(
+            sprite_farewell,
+            glm::vec2(view_min.x, view_max.y),
+            "example.timeline", 0.0f, 1.0f);
+        story_state = farewell;
+        Mode::current = shared_from_this();
+      });
+      break;
+
+    case farewell:
+      break;
   }
-
+  
   std::shared_ptr< MenuMode > menu = std::make_shared< MenuMode >(items);
+  for (auto item : menu->items)
+    std::cout << item.name << std::endl;
   menu->atlas = sprites;
   menu->left_select = sprite_left_select;
   menu->dialog1 = sprite_dialog1;
@@ -122,7 +353,9 @@ void StoryMode::display_menu() {
   menu->view_min = view_min;
   menu->view_max = view_max;
   menu->background = shared_from_this();
-  Mode::current = menu;
+  if (!(story_state==farewell || 
+        story_state==ask_to_open_camera
+        ))Mode::current = menu;
 }
 
 // helper to StoryMode::draw
@@ -162,6 +395,13 @@ void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &dra
   }
 
 }
+
+// TODO: check for all game states, store as properties if necessary, draw them accordingly.
+// Then run and debug
+// then create all font sprites
+// then illustration sprites
+// then tune animation
+// then make visuals look better...
 
 void StoryMode::draw(glm::uvec2 const &drawable_size) {
   //clear the color buffer:

@@ -30,6 +30,8 @@ struct StoryMode : Mode {
   // properties related to animation
   std::vector<AnimatedSprite*> animation;
   bool animation_playing = false;
+  void add_anim_sequence(
+      Sprite const* sprite, glm::vec2 position, std::string const& timeline_path, float start, float end);
   void draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw);
   Sprite const* end_of_animation_sprite = nullptr;
 
@@ -40,17 +42,21 @@ struct StoryMode : Mode {
   
   enum StoryState {
     uhh_anyone,
+    ask_to_open_camera,
     open_camera,
     i_cant,
     easier_communication,
     cant_reach_camera,
     back_working_look_great,
     back_working_fix_camera,
-    camera_fixed,
     farewell
   };
+  StoryState story_state = uhh_anyone;
 
-  bool can_open_camera;
+  bool waiting_for_camera = false;
+  bool alr_asked_abt_camera = false;
+  bool camera_open = false;
+  bool camera_working = false;
 
   bool state_flag = false;
 	

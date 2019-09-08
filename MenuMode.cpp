@@ -24,7 +24,12 @@ MenuMode::~MenuMode() {
 
 bool MenuMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
   if (evt.type == SDL_KEYDOWN) {
-    if (evt.key.keysym.sym == SDLK_UP) {
+    /*
+    if (wait_for_camera && evt.key.keysym.sym == SDLK_c) {
+      wait_for_camera = false;
+      Mode::current = background;
+      return true;
+    } else */if (evt.key.keysym.sym == SDLK_UP) {
       //skip non-selectable items:
       for (uint32_t i = selected - 1; i < items.size(); --i) {
         if (items[i].on_select) {
@@ -82,6 +87,7 @@ void MenuMode::draw(glm::uvec2 const &drawable_size) {
   //don't use the depth test:
   glDisable(GL_DEPTH_TEST);
 
+  // if (wait_for_camera) return;
   { //draw the menu using DrawSprites:
     assert(atlas && "it is an error to try to draw a menu without an atlas");
     DrawSprites draw_sprites(*atlas, view_min, view_max, drawable_size, DrawSprites::AlignPixelPerfect);
@@ -98,7 +104,9 @@ void MenuMode::draw(glm::uvec2 const &drawable_size) {
     // menu vertical offset: if has less than 3 choices, items get moved down
     glm::vec2 offset(0.0f, 30.0f * (3 - items.size()));
 
+    std::cout << "drawing menu of #items = " << items.size() << std::endl;
     for (auto const &item : items) {
+      std::cout << item.name << std::endl;
       bool is_selected = (&item == &items[0] + selected);
       glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
       float left, right;

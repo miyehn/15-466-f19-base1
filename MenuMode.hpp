@@ -39,6 +39,8 @@ struct MenuMode : Mode {
 	};
 	std::vector< Item > items;
 
+  // bool wait_for_camera = false;
+
 	//if set, used to highlight the current selection:
 	Sprite const *left_select = nullptr;
 
