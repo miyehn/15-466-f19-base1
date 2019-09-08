@@ -107,21 +107,20 @@ bool StoryMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size
   if (waiting_for_camera && !animation_playing) {
     if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_c) {
       add_anim_sequence(
-          sprite_signal_DNE,
-          glm::vec2(view_min.x, view_max.y),
+          sprite_signal_DNE, glm::vec2(view_min.x, view_max.y),
           "example.timeline", 0.5f, 0.9f);
       add_anim_sequence(
-          sprite_signal_DNE_glitch,
-          glm::vec2(view_min.x, view_max.y),
+          sprite_signal_DNE_glitch, glm::vec2(view_min.x, view_max.y),
           "example.timeline", 0.9f, 1.1f);
       add_anim_sequence(
-          sprite_signal_DNE,
-          glm::vec2(view_min.x, view_max.y),
+          sprite_signal_DNE, glm::vec2(view_min.x, view_max.y),
           "example.timeline", 1.1f, 2.0f);
       add_anim_sequence(
-          sprite_show_autorecovered_image,
-          glm::vec2(view_min.x, view_max.y),
+          sprite_show_autorecovered_image, glm::vec2(view_min.x, view_max.y),
           "example.timeline", 0.1f, 1.0f);
+      add_anim_sequence(
+          bg_light, glm::vec2(view_min.x, view_max.y),
+          "ease_in_mid_4", 0.0f, 3.0f);
       waiting_for_camera = false;
       story_state = open_camera;
     }
@@ -201,6 +200,7 @@ void StoryMode::display_menu() {
             sprite_not_fully_functional,
             glm::vec2(view_min.x, view_max.y),
             "example.timeline", 0.5f, 1.0f);
+        camera_on = true;
         story_state = easier_communication;
         Mode::current = shared_from_this();
       });
@@ -210,6 +210,7 @@ void StoryMode::display_menu() {
             sprite_i_cant,
             glm::vec2(view_min.x, view_max.y),
             "example.timeline", 0.0f, 1.0f);
+        camera_on = true;
         Mode::current = shared_from_this();
       });
       add_choice(nullptr, "Please first fix the camera.",
@@ -218,6 +219,7 @@ void StoryMode::display_menu() {
             sprite_i_cant,
             glm::vec2(view_min.x, view_max.y),
             "example.timeline", 0.0f, 1.0f);
+        camera_on = true;
         alr_asked_abt_camera = true;
         Mode::current = shared_from_this();
       });
@@ -378,7 +380,7 @@ void StoryMode::draw(glm::uvec2 const &drawable_size) {
     glm::vec2 ul = glm::vec2(view_min.x, view_max.y);
 
     // draw the scene (bg only) according to game state
-    if (camera_open) draw.draw(*bg_light, ul);
+    if (camera_on) draw.draw(*bg_light, ul);
     else draw.draw(*bg_dark, ul);
 
     if (animation_playing) draw_animation(drawable_size, draw);

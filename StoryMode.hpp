@@ -54,7 +54,7 @@ struct StoryMode : Mode {
 
   bool waiting_for_camera = false;
   bool alr_asked_abt_camera = false;
-  bool camera_open = false;
+  bool camera_on = false;
   bool camera_working = false;
 
   bool state_flag = false;
