@@ -44,7 +44,6 @@ struct StoryMode : Mode {
     uhh_anyone,
     ask_to_open_camera,
     open_camera,
-    i_cant,
     easier_communication,
     cant_reach_camera,
     back_working_look_great,

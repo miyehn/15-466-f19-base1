@@ -16,6 +16,7 @@ Sprite const *sprite_dialog1 = nullptr;
 Sprite const *sprite_dialog2 = nullptr;
 Sprite const *sprite_dialog3 = nullptr;
 
+// for animated responses
 Sprite const *sprite_uhh = nullptr;
 Sprite const *sprite_anyone_there = nullptr;
 Sprite const *sprite_can_you_help_me = nullptr;
@@ -34,6 +35,10 @@ Sprite const *sprite_see_me_now = nullptr;
 Sprite const *sprite_thanks_for_help = nullptr;
 Sprite const *sprite_move_on_mission = nullptr;
 Sprite const *sprite_farewell = nullptr;
+
+// background and static illustrations
+Sprite const *bg_dark = nullptr;
+Sprite const *bg_light = nullptr;
 
 
 std::string state_false = "state flag was not flipped yet.";
@@ -75,6 +80,9 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
   sprite_thanks_for_help = &ret->lookup("placeholder");
   sprite_move_on_mission = &ret->lookup("placeholder");
   sprite_farewell = &ret->lookup("placeholder");
+
+  bg_dark= &ret->lookup("darkBg");
+  bg_light = &ret->lookup("lightBg");
 
   return ret;
 });
@@ -150,14 +158,6 @@ void StoryMode::display_menu() {
   std::vector< MenuMode::Item > items;
   glm::vec2 at(50.0f, 86.0f);
 
-  auto add_text = [&items,&at](
-      Sprite const *text, 
-      std::string str // gets drawn as alternative string if no sprite
-  ) {
-    items.emplace_back(str, text, 1.0f, nullptr, at);
-    at.y -= 30.0f;
-  };
-
   auto add_choice = [&items,&at](
       Sprite const *text, 
       std::string str, // gets drawn as alternative string if no sprite
@@ -171,73 +171,36 @@ void StoryMode::display_menu() {
   // what to do after _RESPONDING_ to each of the following states...
   switch(story_state) {
 
-    case uhh_anyone: // respond to ask if anyone's in control room
+    case uhh_anyone: // respond to "uhh, anyone?" and whether if anyone's in control room
       add_choice(nullptr, "Yes! Hello!", [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_can_you_help_me,
             glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
+            "example.timeline", 0.5f, 1.0f);
         add_anim_sequence(
             sprite_open_camera,
             glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
+            "example.timeline", 0.5f, 1.0f);
         waiting_for_camera = true;
         story_state = ask_to_open_camera;
         Mode::current = shared_from_this();
       });
       break;
 
-    case ask_to_open_camera:
-      // add_text(nullptr, "Send message:");
-      add_choice(nullptr, "Turn right to reach your right arm.", 
-          [this](MenuMode::Item const &) {
-        add_anim_sequence(
-            sprite_easier_communicate,
-            glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
-        add_anim_sequence(
-            sprite_not_fully_functional,
-            glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
-        story_state = easier_communication;
-        Mode::current = shared_from_this();
-      });
-      /*
-      add_choice(nullptr, "Move closer to the camera to reach your legs.",
-          [this](MenuMode::Item const &) {
-        add_anim_sequence(
-            sprite_i_cant,
-            glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
-        story_state = i_cant;
-        Mode::current = shared_from_this();
-      });
-      add_choice(nullptr, "Please first fix the camera.",
-          [this](MenuMode::Item const &) {
-        add_anim_sequence(
-            sprite_i_cant,
-            glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
-        alr_asked_abt_camera = true;
-        // no story state change here. Will change when event handled.
-        Mode::current = shared_from_this();
-      });
-      */
+    case ask_to_open_camera: // keyboard input handles this
       break;
 
     case open_camera:
-    case i_cant:
-      add_text(nullptr, "Send message:");
       add_choice(nullptr, "Turn right to reach your right arm.", 
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_easier_communicate,
             glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
+            "example.timeline", 0.5f, 1.0f);
         add_anim_sequence(
             sprite_not_fully_functional,
             glm::vec2(view_min.x, view_max.y),
-            "example.timeline", 0.0f, 1.0f);
+            "example.timeline", 0.5f, 1.0f);
         story_state = easier_communication;
         Mode::current = shared_from_this();
       });
@@ -247,7 +210,6 @@ void StoryMode::display_menu() {
             sprite_i_cant,
             glm::vec2(view_min.x, view_max.y),
             "example.timeline", 0.0f, 1.0f);
-        story_state = i_cant;
         Mode::current = shared_from_this();
       });
       add_choice(nullptr, "Please first fix the camera.",
@@ -257,7 +219,6 @@ void StoryMode::display_menu() {
             glm::vec2(view_min.x, view_max.y),
             "example.timeline", 0.0f, 1.0f);
         alr_asked_abt_camera = true;
-        story_state = i_cant;
         Mode::current = shared_from_this();
       });
       break;
@@ -343,8 +304,6 @@ void StoryMode::display_menu() {
   }
   
   std::shared_ptr< MenuMode > menu = std::make_shared< MenuMode >(items);
-  for (auto item : menu->items)
-    std::cout << item.name << std::endl;
   menu->atlas = sprites;
   menu->left_select = sprite_left_select;
   menu->dialog1 = sprite_dialog1;
@@ -353,7 +312,7 @@ void StoryMode::display_menu() {
   menu->view_min = view_min;
   menu->view_max = view_max;
   menu->background = shared_from_this();
-  if (!(story_state==farewell || 
+  if (!(story_state==farewell ||
         story_state==ask_to_open_camera
         ))Mode::current = menu;
 }
@@ -419,9 +378,9 @@ void StoryMode::draw(glm::uvec2 const &drawable_size) {
     glm::vec2 ul = glm::vec2(view_min.x, view_max.y);
 
     // draw the scene (bg only) according to game state
-    if (state_flag) {
-      draw.draw(*sprite_dunes_bg, ul);
-    } 
+    if (camera_open) draw.draw(*bg_light, ul);
+    else draw.draw(*bg_dark, ul);
+
     if (animation_playing) draw_animation(drawable_size, draw);
     else if (end_of_animation_sprite) {
       draw.draw(*end_of_animation_sprite, ul);

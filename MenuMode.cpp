@@ -103,10 +103,9 @@ void MenuMode::draw(glm::uvec2 const &drawable_size) {
 
     // menu vertical offset: if has less than 3 choices, items get moved down
     glm::vec2 offset(0.0f, 30.0f * (3 - items.size()));
+    // glm::vec2 offset(0.0f, 0.0f);
 
-    std::cout << "drawing menu of #items = " << items.size() << std::endl;
     for (auto const &item : items) {
-      std::cout << item.name << std::endl;
       bool is_selected = (&item == &items[0] + selected);
       glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
       float left, right;
