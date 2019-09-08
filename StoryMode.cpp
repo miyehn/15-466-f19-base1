@@ -88,14 +88,12 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
 });
 
 StoryMode::StoryMode() {
-  
   add_anim_sequence(
-      sprite_uhh, glm::vec2(100.0f, 230.0f),
+      sprite_uhh, 100, 230,
       "example.timeline", 0.5f, 1.0f);
   add_anim_sequence(
-      sprite_anyone_there, glm::vec2(100.0f, 230.0f),
+      sprite_anyone_there, 100, 200,
       "example.timeline", 0.5f, 1.0f, true);
-  
 }
 
 StoryMode::~StoryMode() {
@@ -105,19 +103,19 @@ bool StoryMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size
   if (waiting_for_camera && !animation_playing) {
     if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_c) {
       add_anim_sequence(
-          sprite_signal_DNE, glm::vec2(view_min.x, view_max.y),
+          sprite_signal_DNE, 80, 130,
           "example.timeline", 0.5f, 0.9f);
       add_anim_sequence(
-          sprite_signal_DNE_glitch, glm::vec2(view_min.x, view_max.y),
+          sprite_signal_DNE_glitch, 79, 129,
           "example.timeline", 0.9f, 1.1f);
       add_anim_sequence(
-          sprite_signal_DNE, glm::vec2(view_min.x, view_max.y),
+          sprite_signal_DNE, 80, 130,
           "example.timeline", 1.1f, 2.0f);
       add_anim_sequence(
-          sprite_show_autorecovered_image, glm::vec2(view_min.x, view_max.y),
+          sprite_show_autorecovered_image, 0, 0,
           "example.timeline", 0.1f, 1.0f);
       add_anim_sequence(
-          bg_light, glm::vec2(view_min.x, view_max.y),
+          bg_light, 0, 0,
           "ease_in_mid_4", 0.0f, 3.0f);
       waiting_for_camera = false;
       story_state = open_camera;
@@ -128,7 +126,9 @@ bool StoryMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size
 
 // NOTE: pos here means: ul corner is (0,0), br corner is (720, 540).
 void StoryMode::add_anim_sequence(
-    Sprite const* sprite, glm::vec2 pos, std::string const& timeline_path, float start, float end, bool retain) {
+    Sprite const* sprite, int posX, int posY, 
+    std::string const& timeline_path, float start, float end, bool retain) {
+  glm::vec2 pos = glm::vec2((float)posX, (float)posY);
   bool first = false;
   if (!animation_playing) { // adding the first sequence
     animation = std::vector<AnimatedSprite*>();
@@ -152,7 +152,6 @@ void StoryMode::add_anim_sequence(
 void StoryMode::update(float elapsed) {
   time_elapsed = elapsed;
   if (Mode::current.get() == this && !animation_playing) {
-    // there is no menu displayed! Make one
     // menu becomes current mode, until some choice is made
     // then either story becomes current again (and some animation starts, maybe), or quit.
     display_menu();
@@ -180,12 +179,10 @@ void StoryMode::display_menu() {
     case uhh_anyone: // respond to "uhh, anyone?" and whether if anyone's in control room
       add_choice(nullptr, "Yes! Hello!", [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_can_you_help_me,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_can_you_help_me, 0, 0, 
             "example.timeline", 0.5f, 1.0f);
         add_anim_sequence(
-            sprite_open_camera,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_open_camera, 0, 0,
             "example.timeline", 0.5f, 1.0f);
         waiting_for_camera = true;
         story_state = ask_to_open_camera;
@@ -200,12 +197,10 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Turn right to reach your right arm.", 
           [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_easier_communicate,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_easier_communicate, 0, 0,
             "example.timeline", 0.5f, 1.0f);
         add_anim_sequence(
-            sprite_not_fully_functional,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_not_fully_functional, 0, 0,
             "example.timeline", 0.5f, 1.0f);
         camera_on = true;
         story_state = easier_communication;
@@ -214,8 +209,7 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Move closer to the camera to reach your legs.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_i_cant,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_i_cant, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         camera_on = true;
         Mode::current = shared_from_this();
@@ -223,8 +217,7 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Please first fix the camera.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_i_cant,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_i_cant, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         camera_on = true;
         alr_asked_abt_camera = true;
@@ -236,8 +229,7 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Move closer to the camera to reach your legs.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
-            alr_asked_abt_camera ? sprite_will_fix_camera : sprite_look_great, 
-            glm::vec2(view_min.x, view_max.y),
+            alr_asked_abt_camera ? sprite_will_fix_camera : sprite_look_great, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         story_state = alr_asked_abt_camera ? back_working_fix_camera : back_working_look_great;
         Mode::current = shared_from_this();
@@ -245,8 +237,7 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Please fix the camera.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_cant_reach_camera,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_cant_reach_camera, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         alr_asked_abt_camera = true;
         story_state = cant_reach_camera;
@@ -259,12 +250,10 @@ void StoryMode::display_menu() {
           [this](MenuMode::Item const &) {
         assert(alr_asked_abt_camera);
         add_anim_sequence(
-            sprite_will_fix_camera, 
-            glm::vec2(view_min.x, view_max.y),
+            sprite_will_fix_camera, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         add_anim_sequence(
-            sprite_see_me_now,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_see_me_now, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         story_state = back_working_fix_camera;
         Mode::current = shared_from_this();
@@ -275,12 +264,10 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Still can't see you. Please fix the camera.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_will_fix_camera,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_will_fix_camera, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         add_anim_sequence(
-            sprite_see_me_now,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_see_me_now, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         alr_asked_abt_camera = true;
         story_state = back_working_fix_camera;
@@ -292,16 +279,13 @@ void StoryMode::display_menu() {
       camera_working = true;
       add_choice(nullptr, "Yep.", [this](MenuMode::Item const &) {
         add_anim_sequence(
-            sprite_thanks_for_help,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_thanks_for_help, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         add_anim_sequence(
-            sprite_move_on_mission,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_move_on_mission, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         add_anim_sequence(
-            sprite_farewell,
-            glm::vec2(view_min.x, view_max.y),
+            sprite_farewell, 0, 0,
             "example.timeline", 0.0f, 1.0f);
         story_state = farewell;
         Mode::current = shared_from_this();

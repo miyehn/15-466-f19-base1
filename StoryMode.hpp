@@ -31,10 +31,8 @@ struct StoryMode : Mode {
   std::vector<AnimatedSprite*> animation;
   bool animation_playing = false;
   void add_anim_sequence(
-      Sprite const* sprite, 
-      glm::vec2 position, 
-      std::string const& timeline_path, 
-      float start, float end, 
+      Sprite const* sprite, int posX, int posY,
+      std::string const& timeline_path, float start, float end, 
       bool retain = false);
   void draw_animation(glm::uvec2 const &drawable_size, DrawSprites &draw);
   Sprite const* end_of_animation_sprite = nullptr;
