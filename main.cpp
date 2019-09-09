@@ -48,11 +48,13 @@ int main(int argc, char **argv) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-  glm::uvec2 window_size = glm::uvec2(720, 540);
+  // glm::uvec2 window_size = glm::uvec2(540, 405);
+  glm::uvec2 window_size(720, 540);
+  // glm::uvec2 window_size(576, 432);
 
   //create window:
   SDL_Window *window = SDL_CreateWindow(
-    "gp19 the planet of choices", //TODO: remember to set a title for your game!
+    "(untitled)", //TODO: remember to set a title for your game!
     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
     window_size.x, window_size.y, 
     SDL_WINDOW_OPENGL

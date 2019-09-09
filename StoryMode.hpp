@@ -60,8 +60,6 @@ struct StoryMode : Mode {
   bool camera_on = false;
   bool camera_working = false;
 
-  bool state_flag = false;
-	
 	glm::vec2 view_min = glm::vec2(0,0);
 	glm::vec2 view_max = glm::vec2(720, 540);
 };

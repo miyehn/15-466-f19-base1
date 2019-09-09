@@ -89,11 +89,11 @@ void MenuMode::draw(glm::uvec2 const &drawable_size) {
 
     // draw menu background
     if (items.size() == 1) {
-      draw_sprites.draw(*dialog1, glm::vec2(0.0f, 60.0f));
+      draw_sprites.draw(*dialog1, glm::vec2(8.0f, 60.0f));
     } else if (items.size() == 2) {
-      draw_sprites.draw(*dialog2, glm::vec2(0.0f, 90.0f));
+      draw_sprites.draw(*dialog2, glm::vec2(8.0f, 90.0f));
     } else {
-      draw_sprites.draw(*dialog3, glm::vec2(0.0f, 120.0f));
+      draw_sprites.draw(*dialog3, glm::vec2(8.0f, 120.0f));
     }
 
     // menu vertical offset: if has less than 3 choices, items get moved down
@@ -118,7 +118,7 @@ void MenuMode::draw(glm::uvec2 const &drawable_size) {
       right = max.x;
 
       if (is_selected && left_select) {
-        draw_sprites.draw(*left_select, glm::vec2(left - 22, item.at.y + 14) - offset, item.scale);
+        draw_sprites.draw(*left_select, glm::vec2(left - 32, item.at.y) - offset, item.scale);
       }
       
     }
