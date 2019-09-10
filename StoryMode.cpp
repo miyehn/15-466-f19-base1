@@ -69,8 +69,8 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
   sprite_farewell = &ret->lookup("tillMeetAgain");
 
   bg_dark= &ret->lookup("darkBg");
-  img_recovered = &ret->lookup("illust1"); // TODO: replace with illust 1
-  img_live = &ret->lookup("illust2"); // TODO: replace with illust 2
+  img_recovered = &ret->lookup("illust1");
+  img_live = &ret->lookup("illust2");
 
   return ret;
 });
@@ -203,7 +203,7 @@ void StoryMode::display_menu() {
         story_state = easier_communication;
         Mode::current = shared_from_this();
       });
-      add_choice(nullptr, "Move down a bit to reach your legs.",
+      add_choice(nullptr, "Move closer to the camera to reach your leg.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_i_cant, 180, 200,
@@ -223,7 +223,7 @@ void StoryMode::display_menu() {
       break;
 
     case easier_communication:
-      add_choice(nullptr, "Move down a bit to reach your legs.",
+      add_choice(nullptr, "Move closer to the camera to reach your leg.",
           [this](MenuMode::Item const &) {
         if (alr_asked_abt_camera) {
           add_anim_sequence(
@@ -254,7 +254,7 @@ void StoryMode::display_menu() {
       break;
 
     case cant_reach_camera:
-      add_choice(nullptr, "Move down a bit to reach your legs.",
+      add_choice(nullptr, "Move closer to the camera to reach your leg.",
           [this](MenuMode::Item const &) {
         assert(alr_asked_abt_camera);
         add_anim_sequence(

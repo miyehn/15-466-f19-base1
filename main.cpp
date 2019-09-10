@@ -97,6 +97,7 @@ int main(int argc, char **argv) {
 
   //------------ create game mode + make current --------------
   Mode::set_current(std::make_shared< StoryMode >());
+  int screenshot_counter = 0;
 
   //------------ main loop ------------
 
@@ -114,10 +115,11 @@ int main(int argc, char **argv) {
         } else if (evt.type == SDL_QUIT) {
           Mode::set_current(nullptr);
           break;
-        } else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_PRINTSCREEN) {
+        } else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
           // --- screenshot key ---
-          std::string filename = "screenshot.png";
+          std::string filename = "screenshots/screenshot" + std::to_string(screenshot_counter) + ".png";
           std::cout << "Saving screenshot to '" << filename << "'." << std::endl;
+          screenshot_counter += 1;
           glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
           glReadBuffer(GL_FRONT);
           int w,h;
