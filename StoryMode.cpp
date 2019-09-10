@@ -78,10 +78,10 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
 StoryMode::StoryMode() {
   add_anim_sequence(
       sprite_uhh, 90, 200,
-      "example.timeline", 0.5f, 1.0f);
+      "easeinout_uhh", 0.0f, 3.2f);
   add_anim_sequence(
       sprite_anyone_there, 70, 130,
-      "example.timeline", 0.5f, 1.0f, true);
+      "easein_hiccup", 0.0f, 1.2f, true);
 }
 
 StoryMode::~StoryMode() {
@@ -92,16 +92,28 @@ bool StoryMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size
     if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_c) {
       add_anim_sequence(
           sprite_signal_DNE, 140, 200,
-          "example.timeline", 0.5f, 0.9f);
+          "const4", 0.0f, 0.95f);
       add_anim_sequence(
           sprite_signal_DNE_glitch, 140, 200,
-          "example.timeline", 0.9f, 1.1f);
+          "const4", 0.0f, 0.15f);
       add_anim_sequence(
           sprite_signal_DNE, 140, 200,
-          "example.timeline", 1.1f, 2.0f);
+          "const4", 0.0f, 0.32f);
+      add_anim_sequence(
+          sprite_signal_DNE_glitch, 140, 200,
+          "const4", 0.0f, 0.45f);
+      add_anim_sequence(
+          sprite_signal_DNE, 140, 200,
+          "const4", 0.0f, 0.1f);
+      add_anim_sequence(
+          sprite_signal_DNE_glitch, 140, 200,
+          "const4", 0.0f, 0.06f);
+      add_anim_sequence(
+          sprite_signal_DNE, 140, 200,
+          "const4", 0.0f, 0.55f);
       add_anim_sequence(
           img_recovered, 0, 0, // TODO: hack this to display bg and illust both
-          "ease_in_mid_4", 0.0f, 3.0f, true);
+          "easein_slow", 0.0f, 3.0f, true);
       waiting_for_camera = false;
       story_state = open_camera;
     }
@@ -165,10 +177,10 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Yes! Hello!", [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_can_you_help_me, 100, 150, 
-            "example.timeline", 0.5f, 1.0f);
+            "easeinout2", 0.0f, 2.0f);
         add_anim_sequence(
             sprite_open_camera, 140, 190,
-            "example.timeline", 0.5f, 1.0f, true);
+            "easein_hiccup", 0.0f, 0.6f, true);
         waiting_for_camera = true;
         story_state = ask_to_open_camera;
         Mode::current = shared_from_this();
@@ -183,10 +195,10 @@ void StoryMode::display_menu() {
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_easier_communicate, 80, 180,
-            "example.timeline", 0.5f, 1.0f);
+            "easeinout3", 0.0f, 3.0f);
         add_anim_sequence(
             sprite_not_fully_functional, 75, 180,
-            "example.timeline", 0.5f, 1.0f, true);
+            "easein_hiccup1", 0.0f, 1.5f, true);
         camera_on = true;
         story_state = easier_communication;
         Mode::current = shared_from_this();
@@ -195,7 +207,7 @@ void StoryMode::display_menu() {
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_i_cant, 180, 200,
-            "example.timeline", 0.0f, 1.0f);
+            "easeinout2_hiccup1", 0.0f, 2.4f);
         camera_on = true;
         Mode::current = shared_from_this();
       });
@@ -203,7 +215,7 @@ void StoryMode::display_menu() {
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_i_cant, 180, 200,
-            "example.timeline", 0.0f, 1.0f);
+            "easeinout2_hiccup1", 0.0f, 2.4f);
         camera_on = true;
         alr_asked_abt_camera = true;
         Mode::current = shared_from_this();
@@ -216,15 +228,15 @@ void StoryMode::display_menu() {
         if (alr_asked_abt_camera) {
           add_anim_sequence(
               sprite_let_me_fix_camera, 55, 170,
-              "example.timeline", 0.0f, 1.0f);
+              "easeinout2", 0.0f, 2.25f);
           add_anim_sequence(
               sprite_see_me_now, 50, 200,
-              "example.timeline", 0.0f, 1.0f, true);
+              "easein_hiccup", 0.0f, 1.0f, true);
           story_state = back_working_look_great;
         } else {
           add_anim_sequence(
               sprite_back_up_working, 40, 100,
-              "example.timeline", 0.0f, 1.0f, true);
+              "easein_fast", 0.0f, 1.0f, true);
           story_state = back_working_fix_camera;
         }
         story_state = alr_asked_abt_camera ? back_working_fix_camera : back_working_look_great;
@@ -234,7 +246,7 @@ void StoryMode::display_menu() {
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_too_high_up, 80, 155,
-            "example.timeline", 0.0f, 1.0f, true);
+            "easein_hiccup", 0.0f, 1.0f, true);
         alr_asked_abt_camera = true;
         story_state = cant_reach_camera;
         Mode::current = shared_from_this();
@@ -247,10 +259,10 @@ void StoryMode::display_menu() {
         assert(alr_asked_abt_camera);
         add_anim_sequence(
             sprite_let_me_fix_camera, 55, 170,
-            "example.timeline", 0.0f, 1.0f);
+            "easeinout2", 0.0f, 2.25f);
         add_anim_sequence(
             sprite_see_me_now, 50, 200,
-            "example.timeline", 0.0f, 1.0f, true);
+            "easein_hiccup", 0.0f, 1.0f, true);
         story_state = back_working_fix_camera;
         Mode::current = shared_from_this();
       });
@@ -261,10 +273,10 @@ void StoryMode::display_menu() {
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_let_me_fix_camera, 55, 170,
-            "example.timeline", 0.0f, 1.0f);
+            "easeinout2", 0.0f, 2.25f);
         add_anim_sequence(
             sprite_see_me_now, 50, 200,
-            "example.timeline", 0.0f, 1.0f, true);
+            "easein_hiccup", 0.0f, 1.0f, true);
         alr_asked_abt_camera = true;
         story_state = back_working_fix_camera;
         Mode::current = shared_from_this();
@@ -276,13 +288,13 @@ void StoryMode::display_menu() {
       add_choice(nullptr, "Yep.", [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_thanks_for_help, 50, 200,
-            "example.timeline", 0.0f, 1.0f);
+            "easeinout2", 0.0f, 2.1f);
         add_anim_sequence(
             sprite_move_on_mission, 90, 150,
-            "example.timeline", 0.0f, 1.0f);
+            "easeinout3", 0.0f, 3.1f);
         add_anim_sequence(
             sprite_farewell, 55, 140,
-            "example.timeline", 0.0f, 1.0f, true);
+            "easein_hiccup", 0.0f, 1.0f, true);
         story_state = farewell;
         Mode::current = shared_from_this();
       });
