@@ -19,7 +19,6 @@ Sprite const *sprite_can_you_help_me = nullptr;
 Sprite const *sprite_open_camera = nullptr;
 Sprite const *sprite_signal_DNE = nullptr;
 Sprite const *sprite_signal_DNE_glitch = nullptr;
-Sprite const *sprite_show_autorecovered_image = nullptr;
 Sprite const *sprite_i_cant = nullptr;
 Sprite const *sprite_easier_communicate = nullptr;
 Sprite const *sprite_not_fully_functional = nullptr;
@@ -39,11 +38,13 @@ Sprite const *img_live = nullptr;
 Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
   SpriteAtlas const *ret = new SpriteAtlas(data_path("sprites"));
 
+  /* output available sprite names
   for (std::pair<std::string, Sprite> elem : ret->sprites) {
     std::cout << elem.first;
     std::cout << std::endl;
   }
   std::cout << "--------" << std::endl;
+  */
 
 	sprite_left_select = &ret->lookup(std::to_string(int('>')));
   sprite_dialog1 = &ret->lookup("dialog1");
@@ -56,7 +57,6 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
   sprite_open_camera = &ret->lookup("pressC");
   sprite_signal_DNE = &ret->lookup("noCamSignal");
   sprite_signal_DNE_glitch = &ret->lookup("noCamSignalGlitch");
-  sprite_show_autorecovered_image = &ret->lookup("imgRecovered");
   sprite_i_cant = &ret->lookup("iCant");
   sprite_easier_communicate = &ret->lookup("easierCommunicate");
   sprite_not_fully_functional = &ret->lookup("notFullyFunctional");
@@ -69,8 +69,8 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
   sprite_farewell = &ret->lookup("tillMeetAgain");
 
   bg_dark= &ret->lookup("darkBg");
-  img_recovered = &ret->lookup("lightBg"); // TODO: replace with illust 1
-  img_live = &ret->lookup("imgRecording"); // TODO: replace with illust 2
+  img_recovered = &ret->lookup("illust1"); // TODO: replace with illust 1
+  img_live = &ret->lookup("illust2"); // TODO: replace with illust 2
 
   return ret;
 });
@@ -180,7 +180,7 @@ void StoryMode::display_menu() {
             "easeinout2", 0.0f, 2.0f);
         add_anim_sequence(
             sprite_open_camera, 140, 190,
-            "easein_hiccup", 0.0f, 0.6f, true);
+            "easein_hiccup1", 0.0f, 1.0f, true);
         waiting_for_camera = true;
         story_state = ask_to_open_camera;
         Mode::current = shared_from_this();
@@ -191,7 +191,7 @@ void StoryMode::display_menu() {
       break;
 
     case open_camera:
-      add_choice(nullptr, "Turn right to reach your right arm.", 
+      add_choice(nullptr, "Try to reach your right arm first.", 
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_easier_communicate, 80, 180,
@@ -203,7 +203,7 @@ void StoryMode::display_menu() {
         story_state = easier_communication;
         Mode::current = shared_from_this();
       });
-      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+      add_choice(nullptr, "Move down a bit to reach your legs.",
           [this](MenuMode::Item const &) {
         add_anim_sequence(
             sprite_i_cant, 180, 200,
@@ -223,7 +223,7 @@ void StoryMode::display_menu() {
       break;
 
     case easier_communication:
-      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+      add_choice(nullptr, "Move down a bit to reach your legs.",
           [this](MenuMode::Item const &) {
         if (alr_asked_abt_camera) {
           add_anim_sequence(
@@ -254,7 +254,7 @@ void StoryMode::display_menu() {
       break;
 
     case cant_reach_camera:
-      add_choice(nullptr, "Move closer to the camera to reach your legs.",
+      add_choice(nullptr, "Move down a bit to reach your legs.",
           [this](MenuMode::Item const &) {
         assert(alr_asked_abt_camera);
         add_anim_sequence(
@@ -352,13 +352,6 @@ void StoryMode::draw_animation(glm::uvec2 const &drawable_size, DrawSprites &dra
   }
 
 }
-
-// TODO: check for all game states, store as properties if necessary, draw them accordingly.
-// Then run and debug
-// then create all font sprites
-// then illustration sprites
-// then tune animation
-// then make visuals look better...
 
 void StoryMode::draw(glm::uvec2 const &drawable_size) {
   //clear the color buffer:
